@@ -6,7 +6,7 @@ This folder contains all of the input data required to generate figures in `../f
 - `viability_values_simulations.csv` contains genotype viabilities, estimated by fitting logistic dose-response curves to laboratory measurements;  
 - `resistance_cage.csv` contains population malathion resistance data for both malathion-treated and untreated populations.  
 
-#### Output data (used to generate figures in the manuscript):
+#### Output data, used to generate figures in the manuscript:
 - `sim_allele_freqs_treated_cages.csv` and `sim_allele_freqs_untreated_cages.csv` contain haplotype frequencies simulated under the viability selection model in malathion-treated and untreated populations;    
 - `sim_resistance_data.csv` contains population malathion resistance data simulated under the viability selection model;    
 - `bootstrapped_slope_treated_cages.csv` and `bootstrapped_slope_untreated_cages.csv` contain the bootstrap realizations for the slope of resistant allele frequency in malathion-treated and untreated populations;   
