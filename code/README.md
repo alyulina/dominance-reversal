@@ -1,6 +1,6 @@
 This folder contains the code used to generate figures in `../figures`, as well as the output data in `../data`.
 
-Briefly, `viability_selection_model.ipynb` simulates the evolution of malathion resistance in our mesocosm experiments under the viability selection model<sup>1,2</sup>. It also estimates the fitness costs and dominance of malathion resistance that are consistend with the frequency dynamics observed in both populations. 
+Briefly, the code in `viability_selection_model.ipynb` simulates the evolution of malathion resistance in our mesocosm experiments under the viability selection model<sup>1,2</sup>. It also estimates the fitness costs and dominance of malathion resistance that are consistend with the frequency dynamics observed in both populations. 
 
 #### Viability selection model 
 
