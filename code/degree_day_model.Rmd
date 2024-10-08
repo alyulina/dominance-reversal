@@ -1,0 +1,260 @@
+---
+title: "Degree Day Model"
+author: "Caitlynn Tran & Marianna Karageorgi"
+date: "01/10/2023"
+---
+
+## Background
+
+The purpose of the present code is to use the Degree-Day Model to estimate and track number of generations for the field experiment in 2021. We use the model parameters as in Behrman & Schmidt 2022.
+
+Behrman estimated that *D. melanogaster* required approximately 112 degree days to develop from egg to adult.
+
+**The model:**
+
+Average model = (Daily max temp + Daily min temp)/2 - baseline
+
+-   When tmin \< tbase, replace with tbase
+
+-   When tmin \< tbase, replace with tbase & when tmax \> tbase_max, replace by tbase_max
+
+-   When tmin \< tbase, replace with tbase & when tmax \> tbase_max, no units added
+
+```{r}
+# load packages for data wrangling 
+library(dplyr)
+library(Rmisc)
+library(tidyverse)
+library(scales)
+```
+
+## 1. Generations in field mesocosms 
+
+```{r}
+start_date = as.Date("2021-06-21")
+
+weather = read.csv("./data/2021_orchard_weather_data.csv")%>%
+  select("TIMESTAMP", "Temp_C_Avg", "Temp_C")%>%
+  #Since the date is formatted like "Thursday, April 1, 2021" we want to reformat it in a way so the code can understand it as a date. We first separate the value using the delimiter "," and then separate the month and day using a space as a delimiter
+  separate("TIMESTAMP", c("Day of the Week", "Month + Day", "Year"), ", ")%>%
+  separate("Month + Day", c("Month", "Day"), " ")%>%
+  select("Month":"Temp_C")%>% #only select for Month, Day, Year, and temperature variables (drop the day of the week)
+  
+# We want to replace all the months with their number equivalent (so April is the fourth month of the year, so we replace April with 4)
+  mutate(Month = str_replace(Month, "April", "4"))%>%
+  mutate(Month = str_replace(Month, "May", "5"))%>%
+  mutate(Month = str_replace(Month, "June", "6"))%>%
+  mutate(Month = str_replace(Month, "July", "7"))%>%
+  mutate(Month = str_replace(Month, "August", "8"))%>%
+  mutate(Month = str_replace(Month, "September", "9"))%>%
+  mutate(Month = str_replace(Month, "October", "10"))%>%
+  mutate(Month = str_replace(Month, "November", "11"))%>%
+  mutate(Month = str_replace(Month, "December", "12"))%>%
+  drop_na()%>% # This gets rid of some extra rows at the top of the dataset
+ 
+  
+# This combines the Month, Day and Year together into one column, separating them with a slash so it looks like 4/1/2021. Then we use the as.Date() function to store the value as a date
+  unite("Date", Month:Year, sep = "/")%>%
+  mutate(Date = as.Date(Date, "%m/%d/%Y"))%>% 
+  filter(Date - start_date >= 0)%>%
+  mutate(Temp_C_Avg = as.double(Temp_C_Avg), Temp_C = as.double(Temp_C))%>% #want to store these values as number values not as characters
+  
+  # We group each of the values by the day so we are able to calculate the average temp for each day
+  dplyr::group_by(Date)%>%
+  dplyr::summarize(Low = min(Temp_C_Avg), High = max(Temp_C_Avg))
+
+
+weather
+```
+
+```{r}
+# Set temperature thresholds and baseline for degree day calculation
+baseline = 12
+max_high = 29
+min_low = 12
+threshold = 112
+
+# Function to calculate the average degrees per day
+ddm <- function(low, high) {
+  average_model <- (low + high)/2 - baseline
+  return(average_model)
+}
+
+# Create a new column assigning the value as calculated from the average model. If the High is greater than the max_high, 29 will be used to calculate. If the Low is less than the min_low, 12 will be used to calculate
+avg_model <- weather %>%
+  mutate("Average_Model" = case_when(
+    (Low < min_low & High < min_low) ~ ddm(min_low, min_low),
+    (Low >= max_high & High >= max_high) ~ ddm(max_high, max_high),
+    (Low >= min_low & High <= max_high) ~ ddm(Low, High), 
+    (Low < min_low & High <= max_high) ~ ddm(min_low, High),
+    (Low >= min_low & High > max_high) ~ ddm(Low, max_high),
+    (Low < min_low & High > max_high) ~ ddm(min_low, max_high),
+    TRUE ~ ddm(Low, High)
+  ))
+
+# Variable to keep track of the cumulative average
+cumulative_average = 0
+
+# Empty vector for the generation dates to be added to
+generation_dates = c()
+
+# The for loop calculates the cumulative average 
+for (num in 1:length(avg_model$Average_Model)) {
+  # this takes the average model value calculated above and adds to the cumulative average variable
+  cumulative_average = cumulative_average + avg_model$Average_Model[num]
+ 
+  # if the cumulative average exceeds the threshold of 112, it will take that date and add it to the generation_dates vector. it also resets the cumulative average
+   if (cumulative_average >= threshold) {
+    generation_dates = append(generation_dates, as.Date(avg_model$Date[num]))
+    cumulative_average = 0
+  }
+}
+
+print(generation_dates)
+
+# Create new column with generation information and pesticide information
+generation_start_June21 = avg_model %>%
+  mutate(generation = case_when(
+    Date >= as.Date("2021-06-21") & Date < as.Date("2021-06-30") ~ 1,
+    Date >= as.Date("2021-06-30") & Date < as.Date("2021-07-10") ~ 2,
+    Date >= as.Date("2021-07-10") & Date < as.Date("2021-07-19") ~ 3,
+    Date >= as.Date("2021-07-19") & Date < as.Date("2021-07-29") ~ 4,
+    Date >= as.Date("2021-07-29") & Date < as.Date("2021-08-09") ~ 5,
+    Date >= as.Date("2021-08-09") & Date < as.Date("2021-08-18") ~ 6,
+    Date >= as.Date("2021-08-18") & Date < as.Date("2021-08-27") ~ 7,
+    Date >= as.Date("2021-08-27") & Date < as.Date("2021-09-07") ~ 8,
+    Date >= as.Date("2021-09-07") & Date < as.Date("2021-09-18") ~ 9,
+    Date >= as.Date("2021-09-18") & Date < as.Date("2021-10-01") ~ 10,
+    Date >= as.Date("2021-10-01") & Date < as.Date("2021-10-14") ~ 11,
+    Date >= as.Date("2021-10-14") & Date < as.Date("2021-11-09") ~ 12,
+
+    TRUE ~ NA_integer_  # Assign NA for dates outside the specified ranges
+    ),
+      dose_ppm = case_when(
+    Date >= as.Date("2021-06-21") & Date <= as.Date("2021-07-20") ~ 0,
+    Date >= as.Date("2021-07-21") & Date <= as.Date("2021-08-24") ~ 2.5,
+    Date >= as.Date("2021-08-25") & Date <= as.Date("2021-09-06") ~ 7.5,
+    Date >= as.Date("2021-09-07") & Date <= as.Date("2021-12-09") ~ 0,
+    TRUE ~ NA_real_  # Assign NA for dates outside the specified ranges
+    ))
+
+
+write.csv(generation_start_June21,"./data/generation_start_June21.csv")
+```
+
+## 2. Generations for simulations
+
+```{r}
+start_date = as.Date("2021-07-13")
+
+weather = read.csv("./data/2021_orchard_weather_data.csv")%>%
+  select("TIMESTAMP", "Temp_C_Avg", "Temp_C")%>%
+  #Since the date is formatted like "Thursday, April 1, 2021" we want to reformat it in a way so the code can understand it as a date. We first separate the value using the delimiter "," and then separate the month and day using a space as a delimiter
+  separate("TIMESTAMP", c("Day of the Week", "Month + Day", "Year"), ", ")%>%
+  separate("Month + Day", c("Month", "Day"), " ")%>%
+  select("Month":"Temp_C")%>% #only select for Month, Day, Year, and temperature variables (drop the day of the week)
+  
+# We want to replace all the months with their number equivalent (so April is the fourth month of the year, so we replace April with 4)
+  mutate(Month = str_replace(Month, "April", "4"))%>%
+  mutate(Month = str_replace(Month, "May", "5"))%>%
+  mutate(Month = str_replace(Month, "June", "6"))%>%
+  mutate(Month = str_replace(Month, "July", "7"))%>%
+  mutate(Month = str_replace(Month, "August", "8"))%>%
+  mutate(Month = str_replace(Month, "September", "9"))%>%
+  mutate(Month = str_replace(Month, "October", "10"))%>%
+  mutate(Month = str_replace(Month, "November", "11"))%>%
+  mutate(Month = str_replace(Month, "December", "12"))%>%
+  drop_na()%>% # This gets rid of some extra rows at the top of the dataset
+ 
+  
+# This combines the Month, Day and Year together into one column, separating them with a slash so it looks like 4/1/2021. Then we use the as.Date() function to store the value as a date
+  unite("Date", Month:Year, sep = "/")%>%
+  mutate(Date = as.Date(Date, "%m/%d/%Y"))%>% 
+  filter(Date - start_date >= 0)%>%
+  mutate(Temp_C_Avg = as.double(Temp_C_Avg), Temp_C = as.double(Temp_C))%>% #want to store these values as number values not as characters
+  
+  # We group each of the values by the day so we are able to calculate the average temp for each day
+  dplyr::group_by(Date)%>%
+  dplyr::summarize(Low = min(Temp_C_Avg), High = max(Temp_C_Avg))
+
+
+weather
+```
+
+```{r}
+# Set temperature thresholds and baseline for degree day calculation
+baseline = 12
+max_high = 29
+min_low = 12
+threshold = 112
+
+# Function to calculate the average degrees per day
+ddm <- function(low, high) {
+  average_model <- (low + high)/2 - baseline
+  return(average_model)
+}
+
+# Create a new column assigning the value as calculated from the average model. If the High is greater than the max_high, 29 will be used to calculate. If the Low is less than the min_low, 12 will be used to calculate
+avg_model <- weather %>%
+  mutate("Average_Model" = case_when(
+    (Low < min_low & High < min_low) ~ ddm(min_low, min_low),
+    (Low >= max_high & High >= max_high) ~ ddm(max_high, max_high),
+    (Low >= min_low & High <= max_high) ~ ddm(Low, High), 
+    (Low < min_low & High <= max_high) ~ ddm(min_low, High),
+    (Low >= min_low & High > max_high) ~ ddm(Low, max_high),
+    (Low < min_low & High > max_high) ~ ddm(min_low, max_high),
+    TRUE ~ ddm(Low, High)
+  ))
+
+# Variable to keep track of the cumulative average
+cumulative_average = 0
+
+# Empty vector for the generation dates to be added to
+generation_dates = c()
+
+# The for loop calculates the cumulative average 
+for (num in 1:length(avg_model$Average_Model)) {
+  # this takes the average model value calculated above and adds to the cumulative average variable
+  cumulative_average = cumulative_average + avg_model$Average_Model[num]
+ 
+  # if the cumulative average exceeds the threshold of 112, it will take that date and add it to the generation_dates vector. it also resets the cumulative average
+   if (cumulative_average >= threshold) {
+    generation_dates = append(generation_dates, as.Date(avg_model$Date[num]))
+    cumulative_average = 0
+  }
+}
+
+print(generation_dates)
+
+# Create new column with generation information and pesticide information
+generation_start_July13 = avg_model %>%
+  mutate(generation = case_when(
+    Date >= as.Date("2021-07-13") & Date < as.Date("2021-07-21") ~ 1,
+    Date >= as.Date("2021-07-21") & Date < as.Date("2021-07-31") ~ 2,
+    Date >= as.Date("2021-07-31") & Date < as.Date("2021-08-11") ~ 3,
+    Date >= as.Date("2021-08-11") & Date < as.Date("2021-08-20") ~ 4,
+    Date >= as.Date("2021-08-20") & Date < as.Date("2021-08-29") ~ 5,
+    Date >= as.Date("2021-08-29") & Date < as.Date("2021-09-09") ~ 6,
+    Date >= as.Date("2021-09-09") & Date < as.Date("2021-09-19") ~ 7,
+    Date >= as.Date("2021-09-19") & Date < as.Date("2021-10-02") ~ 8,
+    Date >= as.Date("2021-10-02") & Date < as.Date("2021-10-15") ~ 9,
+    Date >= as.Date("2021-10-15") & Date < as.Date("2021-11-11") ~ 10,
+    
+    TRUE ~ NA_integer_  # Assign NA for dates outside the specified ranges
+    ),
+      dose_ppm = case_when(
+    Date >= as.Date("2021-06-21") & Date <= as.Date("2021-07-20") ~ 0,
+    Date >= as.Date("2021-07-21") & Date <= as.Date("2021-08-24") ~ 2.5,
+    Date >= as.Date("2021-08-25") & Date <= as.Date("2021-09-06") ~ 7.5,
+    Date >= as.Date("2021-09-07") & Date <= as.Date("2021-12-09") ~ 0,
+    TRUE ~ NA_real_  # Assign NA for dates outside the specified ranges
+    ))
+
+
+write.csv(generation_start_July13,"./data/generation_start_July13.csv")
+```
+
+## References
+
+1.  Information for Degree Day model: <https://treefruit.wsu.edu/crop-protection/opm/dd-models/>
+2.  Behrman and Schmidt paper using Degree Day model in Drosophila: <https://www.biorxiv.org/content/10.1101/2022.10.27.514123v1>
