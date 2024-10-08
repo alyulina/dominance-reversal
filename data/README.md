@@ -2,7 +2,7 @@ This folder contains all of the input data required to generate figures in `../f
 
 #### Required input data:
 - `haplotype_freqs.csv` contains the haplotype frequencies from the mesocosm experiment;  
-- `date_generation_treatment.csv` contains the mapping between time in days and time in generations, estimated based on daily temperature;  
+- `generation_start_July13.csv` contains the mapping between time in days and time in generations, estimated based on daily temperature (see `../code/degree_day_model.Rmd`);  
 - `viability_values_simulations.csv` contains genotype viabilities, estimated by fitting logistic dose-response curves to laboratory measurements;  
 - `resistance_cage.csv` contains population malathion resistance data for both malathion-treated and untreated populations.  
 
