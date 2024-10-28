@@ -6,7 +6,7 @@ Briefly, the code in `viability_selection_model.ipynb` simulates the evolution o
 
 Within our model, the population frequencies of the resistant alleles change only due to selection that acts on viability. We further assume that the effects of other forces (mutation, recombination, and genetic drift) are negligible in comparison over the timescales that we considered ($\sim10$ generations). Under these assumptions, the frequency dynamics of the sensitive ($f_0$) and resistant ($f_1$, $f_2$, $f_3$) alleles follow from  
 ```math
-f_i (t+1) = \frac{f_i (t) \sum_j w_{ij} f_j(t)}{\sum_{i,j}f_i f_j w_{ij}},
+f_i (t+1) = f_i (t) \sum_j w_{ij} f_j(t) / \sum_{i,j}f_i f_j w_{ij},
 ```
 where $t$ is time measured in generations and $w_ij$ is the viability of an individual carrying both $i$ and $j$ alleles. To map between time measured in days in the orchard and time measured in generations within our model, we applied the phenology model described in `degree_day_model.Rmd`.  
   
