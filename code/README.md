@@ -1,6 +1,6 @@
 This folder contains the code used to generate figures in `../figures`, as well as the output data in `../data`.
 
-Briefly, the code in `viability_selection_model.ipynb` simulates the evolution of malathion resistance in our mesocosm experiments under the viability selection model<sup>1,2</sup>. It also estimates the fitness costs and dominance of malathion resistance that are consistend with the frequency dynamics observed in both populations. 
+Briefly, the code in `viability_selection_model.ipynb` simulates the evolution of malathion resistance in our mesocosm experiments under the viability selection model. It also estimates the fitness costs and dominance of malathion resistance that are consistend with the frequency dynamics observed in both populations. 
 
 #### Viability selection model 
 
@@ -16,7 +16,3 @@ To estimate the fitness cost and dominance of malathion resistance, we analyzed 
     \partial_t f = sf(1-f)(f+h(1-2f)) / (1+sf^2+2hsf(1-f)),
 ```
 which allows us to find $h$ and $s$ that would be consistent with the observed slope $\partial_t f$ of the frequency trajectory. For more details, please refer to the methods section of our manuscript.   
-
--------------
-<sup>1</sup> Gillespie J. H. Population genetics: A concise guide. Second edition. _Johns Hopkins University Press_, 2004.  
-<sup>2</sup> Ewens W. J. Mathematical population genetics: I. A theoretical introduction. Second edition. _Springer_, 2004.
