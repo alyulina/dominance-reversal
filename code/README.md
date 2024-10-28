@@ -15,7 +15,7 @@ To estimate the fitness cost and dominance of malathion resistance, we analyzed 
 ```math
     \partial_t f = sf(1-f)(f+h(1-2f)) / (1+sf^2+2hsf(1-f)),
 ```
-which allows us to find $s$ that would be consistent with the observed slope $\partial_t f$ of the frequency trajectory for a given $h$. For more details, please refer to the methods section of our manuscript.   
+which allows us to find $h$ and $s$ that would be consistent with the observed slope $\partial_t f$ of the frequency trajectory. For more details, please refer to the methods section of our manuscript.   
 
 -------------
 <sup>1</sup> Gillespie J. H. Population genetics: A concise guide. Second edition. _Johns Hopkins University Press_, 2004.  
