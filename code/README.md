@@ -11,9 +11,9 @@ f_i (t+1) = \frac{f_i (t) \sum_j w_{ij} f_j(t)}{\sum_{i,j}f_i f_j w_{ij}},
 where $t$ is time measured in generations and $w_ij$ is the viability of an individual carrying both $i$ and $j$ alleles. To map between time measured in days in the orchard and time measured in generations within our model, we applied the phenology model described in `degree_day_model.Rmd`.  
   
 
-To estimate the fitness cost and dominance of malathion resistance, we analyzed the empirical frequency trajectories of these alleles in untreated populations and malathion-untreated populations in the absence of malathion. Assuming that resistant alleles share the selection ($s \ll 1$) and dominance ($h$) coefficients, their frequencies obey
+To estimate the fitness cost and dominance of malathion resistance, we analyzed the empirical frequency trajectories of these alleles in untreated populations and malathion-untreated populations in the absence of malathion. Assuming that resistant alleles share the selection ($s$) and dominance ($h$) coefficients, their frequencies obey
 ```math
-    \partial_t f = sf(1-f)(f+h(1-2f)),
+    \partial_t f = sf(1-f)(f+h(1-2f)) / (1+sf^2+2hsf(1-f)),
 ```
 which allows us to find $s$ that would be consistent with the observed slope $\partial_t f$ of the frequency trajectory for a given $h$. For more details, please refer to the methods section of our manuscript.   
 
