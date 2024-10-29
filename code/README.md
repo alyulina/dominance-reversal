@@ -4,7 +4,7 @@ Briefly, the code in `viability_selection_model.ipynb` simulates the evolution o
 
 #### Viability selection model 
 
-Within our model, the population frequencies of the resistant alleles change only due to selection that acts on viability. We further assume that the effects of other forces (mutation, recombination, and genetic drift) are negligible in comparison over the timescales that we considered ($\sim10$ generations). Under these assumptions, the frequency dynamics of sensitive ($f_0$) and resistant ($f_{i>0}$) alleles follow from  
+Within our model, the population frequencies of the resistant alleles change only due to selection that acts on viability. We further assume that the effects of other forces (mutation, recombination, and genetic drift) are negligible in comparison over the timescales that we considered ($\sim10$ generations). Under these assumptions, the frequency dynamics of sensitive ($f_{i=0}$) and resistant ($f_{i>0}$) alleles follow from  
 ```math
 f_i (t+1) = f_i (t) \sum_j w_{ij} f_j(t) / \sum_{i,j}f_i f_j w_{ij},
 ```
