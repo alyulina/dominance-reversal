@@ -13,9 +13,9 @@ where $t$ is time measured in generations and $w_ij$ is the viability of an indi
 
 To estimate the fitness cost and dominance of malathion resistance, we analyzed the empirical frequency trajectories of these alleles in untreated populations and malathion-untreated populations in the absence of malathion. Assuming that resistant alleles share the selection ($s$) and dominance ($h$) coefficients, their frequencies obey
 ```math
-    \partial_t f = sf(1-f)(f+h(1-2f)) / (1+sf^2+2hsf(1-f)), 
+    \partial_t f_1 = sf_1(1-f_1)(f_1+h(1-2f_1)) / (1+sf_1^2+2hsf_1(1-f_1)), 
 ```
 ```math
 s \equiv w_{11}/w_{00} - 1, \quad sh \equiv w_{01}/w_{00} - 1,
 ```
-which allows us to find $h$ and $s$ that would be consistent with the observed slope $\partial_t f$ of the frequency trajectory. For more details, please refer to the methods section of our manuscript.   
+which allows us to find $h$ and $s$ that would be consistent with the observed slope $\partial_t f_1$ of the frequency trajectory. For more details, please refer to the methods section of our manuscript.   
