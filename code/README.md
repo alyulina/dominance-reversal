@@ -19,3 +19,10 @@ To estimate the fitness cost and dominance of malathion resistance, we analyzed 
 s \equiv w_{11}/w_{00} - 1, \quad sh \equiv w_{01}/w_{00} - 1,
 ```
 which allows us to find $h$ and $s$ that would be consistent with the observed slope $\partial_t f_1$ of the frequency trajectory. For more details, please refer to the methods section of our manuscript.   
+
+#### System requirements
+Running this code requires the web-based interactive computational environment `jupyter notebook`, `python 3.8.3` or above, as well as the following libraries: `numpy 1.23.1`, `scipy 1.10.1`, 'pandas 2.0.2`, `sklearn 1.2.2`, `matplotlib 3.7.1`, `seaborn 0.12.2`, which can be installed on any operation system. To launch the notebook, simply type 
+```
+jupyter notebook viability_selection_model.ipynb
+```
+from the command line. Running the code in this notebook should take about half an hour. 
